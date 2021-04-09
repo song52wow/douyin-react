@@ -1,0 +1,26 @@
+.home {
+  height: 100vh;
+  background-color: pink;
+  position: relative;
+}
+
+.home-header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.home-header .home-header-nav {
+  flex: 0.75;
+}
+
+/* video {
+  margin: 0;
+} */
