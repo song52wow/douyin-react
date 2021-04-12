@@ -19,7 +19,8 @@ export class Home extends React.Component {
       docHalfScreenSize: document.documentElement.clientHeight / 2,
 
       touchStartY: 0,
-      touchMoveY: 0
+      touchMoveY: 0,
+      scrollSwitch: false
     }
 
     this.homeRef = React.createRef()
@@ -52,7 +53,8 @@ export class Home extends React.Component {
 
     // 记录手指触碰位置
     this.setState({
-      touchStartY: t.touches[0].clientY
+      touchStartY: t.touches[0].clientY,
+      scrollSwitch: false
     })
   }
 
@@ -68,7 +70,8 @@ export class Home extends React.Component {
     console.log('Touch move', cY, move)
 
     this.setScroll(move).setState({
-      touchMoveY: move
+      touchMoveY: move,
+      scrollSwitch: true
     })
 
 
@@ -79,18 +82,31 @@ export class Home extends React.Component {
    * @param {import("react").TouchEvent} t 
    */
   touchEnd(t) {
+    if(!this.state.scrollSwitch) return
+
     const docHeight = document.documentElement.clientHeight
 
-    const currVideoHeight = this.state.currVideoIndex * docHeight + docHeight
+    const currVideoScroll = this.state.currVideoIndex * docHeight
+    const nextVideoHeight = currVideoScroll + docHeight
 
-    console.log('Touch End', this.state.touchMoveY, currVideoHeight - this.state.docHalfScreenSize)
+    console.log('Touch End', this.state.touchMoveY, nextVideoHeight - this.state.docHalfScreenSize)
 
-    if (this.state.touchMoveY > currVideoHeight - this.state.docHalfScreenSize) {
-      this.setScroll(currVideoHeight).setState({
+    if (this.state.touchMoveY > nextVideoHeight - this.state.docHalfScreenSize) {
+      this.setScroll(nextVideoHeight).setState({
         currVideoIndex: this.state.currVideoIndex + 1,
-        currVideoHeight,
-        touchMoveY: currVideoHeight
+        currVideoHeight: nextVideoHeight,
+        touchMoveY: nextVideoHeight
       })
+    }
+    // else if (this.state.touchMoveY < nextVideoHeight + this.state.docHalfScreenSize) {
+    //   this.setScroll(nextVideoHeight).setState({
+    //     currVideoIndex: this.state.currVideoIndex - 1,
+    //     currVideoHeight: currVideoScroll,
+    //     touchMoveY: currVideoScroll
+    //   })
+    // }
+    else {
+      this.setScroll(currVideoScroll)
     }
     
 
