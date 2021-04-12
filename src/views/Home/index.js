@@ -16,6 +16,8 @@ export class Home extends React.Component {
       currVideoIndex: 0,
       currVideoHeight: 0,
 
+      docHalfScreenSize: document.documentElement.clientHeight / 2,
+
       touchStartY: 0,
       touchMoveY: 0
     }
@@ -46,7 +48,7 @@ export class Home extends React.Component {
    * @param {import("react").TouchEvent} t 
    */
   touchStart(t) {
-    console.log(t.touches[0].clientY)
+    console.log('Touch Start', t.touches[0].clientY)
 
     // 记录手指触碰位置
     this.setState({
@@ -63,30 +65,32 @@ export class Home extends React.Component {
 
     const move = ((cY - this.state.touchStartY) * -1) + this.state.currVideoHeight
 
-    this.setState(state => {
-      this.setScroll(move)
+    console.log('Touch move', cY, move)
 
-      return { 
-        touchMoveY: move
-      }
+    this.setScroll(move).setState({
+      touchMoveY: move
     })
 
 
   }
 
+  /**
+   * 手指松开
+   * @param {import("react").TouchEvent} t 
+   */
   touchEnd(t) {
     const docHeight = document.documentElement.clientHeight
 
     const currVideoHeight = this.state.currVideoIndex * docHeight + docHeight
 
-    if (this.state.touchMoveY > currVideoHeight / 2) {
-      this.setState({
+    console.log('Touch End', this.state.touchMoveY, currVideoHeight - this.state.docHalfScreenSize)
+
+    if (this.state.touchMoveY > currVideoHeight - this.state.docHalfScreenSize) {
+      this.setScroll(currVideoHeight).setState({
         currVideoIndex: this.state.currVideoIndex + 1,
         currVideoHeight,
         touchMoveY: currVideoHeight
       })
-      
-      this.setScroll(currVideoHeight)
     }
     
 
@@ -94,6 +98,8 @@ export class Home extends React.Component {
 
   setScroll(n) {
     this.homeRef.current.scrollTop = n
+
+    return this
   }
 
   render() {
