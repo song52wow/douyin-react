@@ -29,3 +29,7 @@
   align-items: center;
   justify-content: center;
 }
+
+.home .home-scroll.transition {
+  transition: all .3s ease;
+}

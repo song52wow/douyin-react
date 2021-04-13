@@ -20,10 +20,13 @@ export class Home extends React.Component {
 
       touchStartY: 0,
       touchMoveY: 0,
-      scrollSwitch: false
+      // 拖动开关
+      scrollSwitch: true,
+      // 动画延迟开关
+      transition: false,
     }
 
-    this.homeRef = React.createRef()
+    this.homeScrollRef = React.createRef()
   }
 
   pushVideoList() {
@@ -49,12 +52,12 @@ export class Home extends React.Component {
    * @param {import("react").TouchEvent} t 
    */
   touchStart(t) {
-    console.log('Touch Start', t.touches[0].clientY)
+    if(!this.state.scrollSwitch) return
 
     // 记录手指触碰位置
     this.setState({
       touchStartY: t.touches[0].clientY,
-      scrollSwitch: false
+      transition: false
     })
   }
 
@@ -63,18 +66,15 @@ export class Home extends React.Component {
    * @param {import("react").TouchEvent} t 
    */
   touchMove(t) {
+    if(this.state.transition) return
+
     const cY = t.touches[0].clientY
 
     const move = ((cY - this.state.touchStartY) * -1) + this.state.currVideoHeight
 
-    console.log('Touch move', cY, move)
-
-    this.setScroll(move).setState({
+    this.setState({
       touchMoveY: move,
-      scrollSwitch: true
     })
-
-
   }
 
   /**
@@ -82,7 +82,7 @@ export class Home extends React.Component {
    * @param {import("react").TouchEvent} t 
    */
   touchEnd(t) {
-    if(!this.state.scrollSwitch) return
+    if(this.state.transition) return
 
     const docHeight = document.documentElement.clientHeight
 
@@ -90,46 +90,64 @@ export class Home extends React.Component {
     const prevVideo = currVideoScroll - docHeight
     const nextVideo = currVideoScroll + docHeight
 
-    console.log('Touch End', this.state.touchMoveY, currVideoScroll - this.state.docHalfScreenSize)
+    this.setState({
+      transition: true,
+      scrollSwitch: false
+    })
 
     if (this.state.touchMoveY > nextVideo - this.state.docHalfScreenSize) {
-      this.setScroll(nextVideo).setState({
+      this.setState({
         currVideoIndex: this.state.currVideoIndex + 1,
         currVideoHeight: nextVideo,
         touchMoveY: nextVideo
       })
     } else if (this.state.touchMoveY < currVideoScroll - this.state.docHalfScreenSize) {
-      this.setScroll(prevVideo).setState({
+      this.setState({
         currVideoIndex: this.state.currVideoIndex - 1,
         currVideoHeight: prevVideo,
         touchMoveY: prevVideo
       })
     } else {
-      this.setScroll(currVideoScroll)
+      this.setState({
+        touchMoveY: currVideoScroll
+      })
     }
-    
 
   }
 
-  setScroll(n) {
-    this.homeRef.current.scrollTop = n
-
-    return this
+  /**
+   * 动画结束
+   */
+  transitionEnd() {
+    this.setState({
+      // transition: false,
+      scrollSwitch: true
+    })
   }
 
   render() {
+    let homeScrollClass = 'home-scroll'
+
+    if (this.state.transition) {
+      homeScrollClass += ' transition'
+    }
 
     return (
-      <div ref={this.homeRef} className="home">
+      <div className="home">
         <div
-          className="home-scroll"
+          ref={this.homeScrollRef}
+          className={homeScrollClass}
           onTouchStart={t => this.touchStart(t)}
           onTouchMove={t => this.touchMove(t)}
           onTouchEnd={t => this.touchEnd(t)}
+          onTransitionEnd={() => this.transitionEnd()}
+          style={{
+            transform: `translateY(-${this.state.touchMoveY}px)`
+          }}
         >
           <div className="home-video-list">
             {
-              this.state.videoLists.map(ele => (
+              this.state.videoLists.map((ele, index) => (
                 <div key={ele} className="home-video">
                   <iframe
                     width="100%"
