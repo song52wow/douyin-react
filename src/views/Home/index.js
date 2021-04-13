@@ -120,7 +120,6 @@ export class Home extends React.Component {
    */
   transitionEnd() {
     this.setState({
-      // transition: false,
       scrollSwitch: true
     })
   }
@@ -154,7 +153,7 @@ export class Home extends React.Component {
                     height="auto"
                     src={ele}
                     frameBorder="0"
-                    // allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow={`accelerometer; ${index === this.state.currVideoIndex && 'autoplay'}; clipboard-write; encrypted-media; gyroscope; picture-in-picture`}
                     allowFullScreen></iframe>
                 </div>
               ))
