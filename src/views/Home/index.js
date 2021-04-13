@@ -87,25 +87,24 @@ export class Home extends React.Component {
     const docHeight = document.documentElement.clientHeight
 
     const currVideoScroll = this.state.currVideoIndex * docHeight
-    const nextVideoHeight = currVideoScroll + docHeight
+    const prevVideo = currVideoScroll - docHeight
+    const nextVideo = currVideoScroll + docHeight
 
-    console.log('Touch End', this.state.touchMoveY, nextVideoHeight - this.state.docHalfScreenSize)
+    console.log('Touch End', this.state.touchMoveY, currVideoScroll - this.state.docHalfScreenSize)
 
-    if (this.state.touchMoveY > nextVideoHeight - this.state.docHalfScreenSize) {
-      this.setScroll(nextVideoHeight).setState({
+    if (this.state.touchMoveY > nextVideo - this.state.docHalfScreenSize) {
+      this.setScroll(nextVideo).setState({
         currVideoIndex: this.state.currVideoIndex + 1,
-        currVideoHeight: nextVideoHeight,
-        touchMoveY: nextVideoHeight
+        currVideoHeight: nextVideo,
+        touchMoveY: nextVideo
       })
-    }
-    // else if (this.state.touchMoveY < nextVideoHeight + this.state.docHalfScreenSize) {
-    //   this.setScroll(nextVideoHeight).setState({
-    //     currVideoIndex: this.state.currVideoIndex - 1,
-    //     currVideoHeight: currVideoScroll,
-    //     touchMoveY: currVideoScroll
-    //   })
-    // }
-    else {
+    } else if (this.state.touchMoveY < currVideoScroll - this.state.docHalfScreenSize) {
+      this.setScroll(prevVideo).setState({
+        currVideoIndex: this.state.currVideoIndex - 1,
+        currVideoHeight: prevVideo,
+        touchMoveY: prevVideo
+      })
+    } else {
       this.setScroll(currVideoScroll)
     }
     
